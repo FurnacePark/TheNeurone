@@ -1,0 +1,73 @@
+/*
+This is the Neurone Temperature Cube, which changes colour depending on the ambient temperature, using an Adafruit Barometer and Temperature sensor. (http://www.adafruit.com/products/992), the library for which needs to be installed into the Arduino Library Folder.  The code is hacked together from various sources around the web.
+*/
+
+#include <Wire.h>
+#include <Adafruit_MPL115A2.h>
+
+Adafruit_MPL115A2 mpl115a2;
+
+#define redPin 3
+#define greenPin 5
+#define bluePin 6
+
+int blueTemp= 0; 
+int greenTemp= 0; 
+int redTemp= 0;
+
+void setup(void) 
+{
+  pinMode(redPin, OUTPUT);
+  pinMode(greenPin, OUTPUT);
+  pinMode(bluePin, OUTPUT);
+  
+  Serial.begin(9600);
+  Serial.println("Hello!");
+  
+  Serial.println("Getting barometric pressure ...");
+  mpl115a2.begin();
+}
+
+void loop(void) 
+{
+  float pressureKPA = 0, temperatureC = 0;    
+
+ // pressureKPA = mpl115a2.getPressure();  
+ // Serial.print("Pressure (kPa): "); Serial.print(pressureKPA, 4); Serial.println(" kPa");
+
+  temperatureC = mpl115a2.getTemperature();  
+ // Serial.print("Temp (*C): "); Serial.print(temperatureC, 1); Serial.println(" *C");
+  
+  if(temperatureC<0){
+analogWrite(bluePin, 255);}
+else if(temperatureC>0&&temperatureC<=25){
+blueTemp= map(temperatureC, 0, 15, 255, 0);
+analogWrite(bluePin, blueTemp);}
+else if(temperatureC>15){
+analogWrite(bluePin, 0);}
+
+if(temperatureC<15){
+analogWrite(greenPin, 0);}
+else if(temperatureC>15&&temperatureC<=40){
+greenTemp = map(temperatureC, 15, 25, 1, 254);
+analogWrite(greenPin, greenTemp);}
+else if(temperatureC>35&&temperatureC<=75){
+greenTemp = map(temperatureC, 25, 35, 255, 0);
+analogWrite(greenPin, greenTemp);}
+else if(temperatureC>35){
+analogWrite(greenPin, 0);}
+
+if(temperatureC<25){
+analogWrite(redPin, 0);}
+else if(temperatureC>=25){
+redTemp= map(temperatureC, 25, 40, 1, 255);
+analogWrite(redPin, redTemp);}
+else if(temperatureC>40){
+analogWrite(redPin, 255);}
+
+delay(1000);                           //wait 200 ms before sending new data
+}
+
+
+  
+  
